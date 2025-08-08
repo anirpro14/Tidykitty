@@ -21,6 +21,7 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
   const [resetEmail, setResetEmail] = useState('');
   const [rateLimitCooldown, setRateLimitCooldown] = useState(0);
 
+  // Rate limit countdown
   React.useEffect(() => {
     if (rateLimitCooldown > 0) {
       const timer = setTimeout(() => setRateLimitCooldown(rateLimitCooldown - 1), 1000);
@@ -46,11 +47,10 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
       }
     } catch (error: any) {
       console.error('Form submission error:', error);
-      if (error.isRateLimitError) {
-        const waitTime = error.waitTime || 60;
+      if ((error as any).isRateLimitError) {
+        const waitTime = (error as any).waitTime || 60;
         setRateLimitCooldown(waitTime);
-	// make sure both backticks are present:
-        setAuthError(`Rate limit reached. Please wait' +waitTime+' s.`);
+        setAuthError('Rate limit reached. Please wait ' + waitTime + 's.');
       } else {
         setAuthError(error.message || 'Unknown error occurred.');
       }
@@ -67,12 +67,13 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
         await onResetPassword(resetEmail);
         alert('Password reset email sent!');
       } else {
-        alert('Reset feature not configured.');
+        alert('Reset functionality not configured.');
       }
       setShowResetPassword(false);
       setResetEmail('');
-    } catch {
-      alert('Error sending reset email.');
+    } catch (error) {
+      console.error('Reset password error:', error);
+      alert('Error sending reset email. Please try again.');
     }
   };
 
@@ -105,99 +106,98 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
             <label className="block text-gray-700">Email</label>
             <input
               type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full border rounded p-2 mt-1"
-                placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full border rounded p-2 mt-1"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Password</label>
+            <div className="relative mt-1">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full border rounded p-2"
+                placeholder="********"
               />
-            </div>
-
-            <div>
-              <label className="block text-gray-700">Password</label>
-              <div className="relative mt-1">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full border rounded p-2"
-                  placeholder="********"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-600"
-                >
-                  {showPassword ? <EyeOff /> : <Eye />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center">
               <button
                 type="button"
-                onClick={() => setShowResetPassword(true)}
-                className="text-sm text-blue-600 hover:underline"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-600"
               >
-                Forgot password?
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading || rateLimitCooldown > 0}
-                className="bg-blue-600 text-white py-2 px-4 rounded disabled:opacity-50 flex items-center"
-              >
-                {isLoading ? (
-                  <span className="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                ) : (
-                  <><span>{isSignUp ? 'Sign Up' : 'Sign In'}</span> <ArrowRight className="ml-2" /></>
-                )}
+                {showPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
+          </div>
 
-            <div className="text-center mt-4">
-              <button
-                type="button"
-                onClick={() => { setIsSignUp(!isSignUp); setAuthError(null); }}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                {isSignUp ? 'Already have an account? Sign In' : 'New here? Create an account'}
-              </button>
-            </div>
+          <div className="flex justify-between items-center">
+            <button
+              type="button"
+              onClick={() => setShowResetPassword(true)}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot password?
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading || rateLimitCooldown > 0}
+              className="bg-blue-600 text-white py-2 px-4 rounded disabled:opacity-50 flex items-center"
+            >
+              {isLoading ? (
+                <span className="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <><span>{isSignUp ? 'Sign Up' : 'Sign In'}</span> <ArrowRight className="ml-2" /></>
+              )}
+            </button>
+          </div>
 
-            {/* Reset Password Modal */}
-            {showResetPassword && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-                  <h3 className="text-lg font-semibold mb-4">Reset Password</h3>
-                  <form onSubmit={handleResetPassword} className="space-y-4">
-                    <input
-                      type="email"
-                      value={resetEmail}
-                      onChange={e => setResetEmail(e.target.value)}
-                      className="w-full border rounded p-2"
-                      placeholder="Enter your email"
-                    />
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowResetPassword(false)}
-                        className="py-2 px-4 border rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="bg-blue-600 text-white py-2 px-4 rounded"
-                      >
-                        Send Reset Link
-                      </button>
-                    </div>
-                  </form>
-                </div>
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => { setIsSignUp(!isSignUp); setAuthError(null); }}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'New here? Create an account'}
+            </button>
+          </div>
+
+          {showResetPassword && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+                <h3 className="text-lg font-semibold mb-4">Reset Password</h3>
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={e => setResetEmail(e.target.value)}
+                    className="w-full border rounded p-2"
+                    placeholder="Enter your email"
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetPassword(false)}
+                      className="py-2 px-4 border rounded"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white py-2 px-4 rounded"
+                    >
+                      Send Reset Link
+                    </button>
+                  </div>
+                </form>
               </div>
-            )}
-          </form>
-        </div>
+            </div>
+          )}
+        </form>
       </div>
-    );
+    </div>
+  );
 }
 ```
