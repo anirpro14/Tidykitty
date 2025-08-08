@@ -1,6 +1,4 @@
-```tsx
-// src/components/LoginScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export interface LoginScreenProps {
@@ -21,8 +19,7 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
   const [resetEmail, setResetEmail] = useState('');
   const [rateLimitCooldown, setRateLimitCooldown] = useState(0);
 
-  // Rate limit countdown
-  React.useEffect(() => {
+  useEffect(() => {
     if (rateLimitCooldown > 0) {
       const timer = setTimeout(() => setRateLimitCooldown(rateLimitCooldown - 1), 1000);
       return () => clearTimeout(timer);
@@ -149,7 +146,10 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
               {isLoading ? (
                 <span className="animate-spin inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
               ) : (
-                <><span>{isSignUp ? 'Sign Up' : 'Sign In'}</span> <ArrowRight className="ml-2" /></>
+                <>
+                  <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
+                  <ArrowRight className="ml-2" />
+                </>
               )}
             </button>
           </div>
@@ -157,7 +157,10 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
           <div className="text-center mt-4">
             <button
               type="button"
-              onClick={() => { setIsSignUp(!isSignUp); setAuthError(null); }}
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setAuthError(null);
+              }}
               className="text-sm text-blue-600 hover:underline"
             >
               {isSignUp ? 'Already have an account? Sign In' : 'New here? Create an account'}
@@ -200,4 +203,3 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
     </div>
   );
 }
-```
