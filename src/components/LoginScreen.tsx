@@ -49,7 +49,8 @@ export function LoginScreen({ onLogin, onSignUp, onResetPassword }: LoginScreenP
       if (error.isRateLimitError) {
         const waitTime = error.waitTime || 60;
         setRateLimitCooldown(waitTime);
-        setAuthError(`Rate limit reached. Please wait ${waitTime}s.`);
+	// make sure both backticks are present:
+        setAuthError(`Rate limit reached. Please wait' +waitTime+' s.`);
       } else {
         setAuthError(error.message || 'Unknown error occurred.');
       }
