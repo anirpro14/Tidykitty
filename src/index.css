@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 18px;
+    line-height: 1.6;
+    letter-spacing: 0.025em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.2em;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+  
+  button, input, textarea, select {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1em;
+    letter-spacing: 0.02em;
+  }
+  
+  .text-sm {
+    font-size: 16px !important;
+  }
+  
+  .text-xs {
+    font-size: 14px !important;
+  }
+  
+  .text-lg {
+    font-size: 22px !important;
+  }
+  
+  .text-xl {
+    font-size: 26px !important;
+  }
+  
+  .text-2xl {
+    font-size: 32px !important;
+  }
+  
+  .text-3xl {
+    font-size: 40px !important;
+  }
+}
